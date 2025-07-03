@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const os = require('os');
 require('dotenv').config();
 
 // Importar middleware personalizado
@@ -16,11 +17,29 @@ const db = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
+
+// Función para obtener las IPs de red
+function getNetworkIPs() {
+  const interfaces = os.networkInterfaces();
+  const ips = [];
+  
+  for (const name of Object.keys(interfaces)) {
+    for (const interface of interfaces[name]) {
+      // Saltar interfaces internas y IPv6
+      if (interface.family === 'IPv4' && !interface.internal) {
+        ips.push(interface.address);
+      }
+    }
+  }
+  
+  return ips;
+}
 
 // Configuración de rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // máximo 100 requests por ventana
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: {
     success: false,
     message: 'Demasiadas solicitudes desde esta IP, intenta de nuevo más tarde.',
@@ -50,10 +69,34 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(logger);
 app.use(responseHandler);
 
+// Ruta de información del servidor
+app.get('/server-info', (req, res) => {
+  const networkIPs = getNetworkIPs();
+  res.json({
+    success: true,
+    message: 'Información del servidor',
+    data: {
+      host: HOST,
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      localAccess: [
+        `http://localhost:${PORT}`,
+        `http://127.0.0.1:${PORT}`
+      ],
+      networkAccess: networkIPs.map(ip => `http://${ip}:${PORT}`),
+      endpoints: {
+        productos: '/api/productos',
+        kardex: '/api/kardex',
+        health: '/health',
+        serverInfo: '/server-info'
+      }
+    }
+  });
+});
+
 // Ruta de salud
 app.get('/health', async (req, res) => {
   try {
-    // Verificar conexión a base de datos
     await db.query('SELECT 1');
     
     res.json({
@@ -61,7 +104,8 @@ app.get('/health', async (req, res) => {
       message: 'API funcionando correctamente',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
-      version: '1.0.0'
+      version: '1.0.0',
+      networkAccess: getNetworkIPs().map(ip => `http://${ip}:${PORT}`)
     });
   } catch (error) {
     res.status(503).json({
@@ -74,15 +118,21 @@ app.get('/health', async (req, res) => {
 
 // Ruta raíz
 app.get('/', (req, res) => {
+  const networkIPs = getNetworkIPs();
   res.json({
     success: true,
     message: 'API del Sistema de Inventario SUAN',
     version: '1.0.0',
+    accessInfo: {
+      local: `http://localhost:${PORT}`,
+      network: networkIPs.map(ip => `http://${ip}:${PORT}`)
+    },
     documentation: '/api-docs',
     endpoints: {
       productos: '/api/productos',
       kardex: '/api/kardex',
-      health: '/health'
+      health: '/health',
+      serverInfo: '/server-info'
     }
   });
 });
@@ -94,25 +144,41 @@ app.use('/api/kardex', kardexRoutes);
 // Middleware para rutas no encontradas
 app.use(notFound);
 
-// Middleware de manejo de errores (debe ir al final)
+// Middleware de manejo de errores
 app.use(errorHandler);
 
 // Inicializar servidor
 const startServer = async () => {
   try {
-    // Conectar a la base de datos
     await db.connect();
     console.log('🗄️  Conexión a base de datos establecida');
     
-    // Iniciar servidor en todas las interfaces de red
-    const HOST = process.env.HOST || '0.0.0.0';
     app.listen(PORT, HOST, () => {
-      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+      console.log('\n🚀 ===== SERVIDOR INICIADO =====');
       console.log(`📍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 Accesible desde: http://${HOST}:${PORT}`);
-      console.log(`🌐 Local: http://localhost:${PORT}`);
-      console.log(`❤️  Health check: http://${HOST}:${PORT}/health`);
-      console.log(`📡 El servidor está accesible desde cualquier IP en la red`);
+      console.log(`🌐 Host: ${HOST}`);
+      console.log(`🔌 Puerto: ${PORT}`);
+      console.log('\n📍 Acceso Local:');
+      console.log(`   http://localhost:${PORT}`);
+      console.log(`   http://127.0.0.1:${PORT}`);
+      
+      const networkIPs = getNetworkIPs();
+      if (networkIPs.length > 0) {
+        console.log('\n🌐 Acceso desde la Red:');
+        networkIPs.forEach(ip => {
+          console.log(`   http://${ip}:${PORT}`);
+        });
+      }
+      
+      console.log('\n❤️  Endpoints de prueba:');
+      console.log(`   http://localhost:${PORT}/health`);
+      console.log(`   http://localhost:${PORT}/server-info`);
+      
+      console.log('\n📱 Para Flutter/Cliente móvil:');
+      console.log('   Usa una de las IPs de red mostradas arriba');
+      console.log('   Ejemplo: http://192.168.1.X:' + PORT);
+      console.log('\n🔥 ¡Servidor listo para recibir conexiones desde cualquier IP!');
+      console.log('=======================================\n');
     });
   } catch (error) {
     console.error('❌ Error al iniciar el servidor:', error);

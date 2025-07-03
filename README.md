@@ -81,15 +81,36 @@ DB_PORT=3306
 
 # Servidor
 PORT=3000
+# HOST=0.0.0.0 para permitir acceso desde cualquier IP
+# HOST=localhost para solo acceso local
+HOST=0.0.0.0
 NODE_ENV=production
 
 # CORS
+# ALLOWED_ORIGINS=* para permitir cualquier origen
+# Para orígenes específicos: ALLOWED_ORIGINS=http://localhost:3000,http://192.168.1.10:3000
 ALLOWED_ORIGINS=*
 
 # Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 ```
+
+### 🌐 Acceso desde la Red
+
+La API está configurada para ser accesible desde cualquier dirección IP en la red:
+
+- **HOST=0.0.0.0**: El servidor escucha en todas las interfaces de red
+- **ALLOWED_ORIGINS=\***: CORS permite peticiones desde cualquier origen
+- **Puerto configurable**: Por defecto 3000, pero configurable vía .env
+
+Para acceder desde otros dispositivos en la red:
+1. Encuentra la IP de tu servidor: `ip addr show` o `ifconfig`
+2. Accede desde otros dispositivos usando: `http://IP_DEL_SERVIDOR:3000`
+
+Ejemplo: Si tu servidor tiene IP 192.168.1.100, accede con:
+- `http://192.168.1.100:3000`
+- `http://192.168.1.100:3000/health`
 
 ## 📱 Integración con Flutter
 
