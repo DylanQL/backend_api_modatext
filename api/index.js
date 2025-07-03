@@ -3,15 +3,15 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-// Importar middleware personalizado
-const { errorHandler, notFound, logger, responseHandler } = require('./middleware/errorHandler');
+// Importar middleware personalizado (ruta relativa desde api/)
+const { errorHandler, notFound, logger, responseHandler } = require('../middleware/errorHandler');
 
-// Importar rutas
-const productosRoutes = require('./routes/productos');
-const kardexRoutes = require('./routes/kardex');
+// Importar rutas (ruta relativa desde api/)
+const productosRoutes = require('../routes/productos');
+const kardexRoutes = require('../routes/kardex');
 
-// Importar conexión a base de datos
-const db = require('./config/database');
+// Importar conexión a base de datos (ruta relativa desde api/)
+const db = require('../config/database');
 
 const app = express();
 
