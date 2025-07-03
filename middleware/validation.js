@@ -59,6 +59,11 @@ const validateProducto = [
     .isLength({ min: 1, max: 50 })
     .withMessage('Unidad de venta es requerida y debe tener máximo 50 caracteres'),
   
+  body('tipo_material')
+    .optional()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Tipo de material debe tener máximo 100 caracteres'),
+  
   body('rack')
     .notEmpty()
     .isLength({ min: 1, max: 20 })

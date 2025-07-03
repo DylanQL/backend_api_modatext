@@ -39,6 +39,7 @@ async function initializeDatabase() {
           color VARCHAR(50) NOT NULL,
           capacidad VARCHAR(50) NOT NULL,
           unidad_venta VARCHAR(50) NOT NULL,
+          tipo_material VARCHAR(100),
           rack VARCHAR(20) NOT NULL,
           nivel VARCHAR(20) NOT NULL,
           codigo_numerico VARCHAR(20) UNIQUE NOT NULL,
@@ -86,9 +87,9 @@ async function initializeDatabase() {
       await connection.execute(`
         INSERT INTO productos (
           id_generado, tipo, familia, clase, modelo, marca, 
-          presentacion, color, capacidad, unidad_venta, 
+          presentacion, color, capacidad, unidad_venta, tipo_material,
           rack, nivel, codigo_numerico, stock_actual
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         'PRELEMP3NAAPSI16G1', 
         'ProductoTerminado', 
@@ -100,6 +101,7 @@ async function initializeDatabase() {
         'Slim', 
         'Silver', 
         '16GB', 
+        'Electrónico',
         'Unidad', 
         'A1', 
         '1', 
@@ -110,9 +112,9 @@ async function initializeDatabase() {
       await connection.execute(`
         INSERT INTO productos (
           id_generado, tipo, familia, clase, modelo, marca, 
-          presentacion, color, capacidad, unidad_venta, 
+          presentacion, color, capacidad, unidad_venta, tipo_material,
           rack, nivel, codigo_numerico, stock_actual
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         'PRELEMP4SAAPCO32G1', 
         'ProductoTerminado', 
@@ -124,6 +126,7 @@ async function initializeDatabase() {
         'Compact', 
         'Black', 
         '32GB', 
+        'Plástico',
         'Unidad', 
         'A2', 
         '2', 
@@ -134,9 +137,9 @@ async function initializeDatabase() {
       await connection.execute(`
         INSERT INTO productos (
           id_generado, tipo, familia, clase, modelo, marca, 
-          presentacion, color, capacidad, unidad_venta, 
+          presentacion, color, capacidad, unidad_venta, tipo_material,
           rack, nivel, codigo_numerico, stock_actual
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         'MATEALCOPLMO11001', 
         'MateriaPrima', 
@@ -148,6 +151,7 @@ async function initializeDatabase() {
         'Natural', 
         '1mm', 
         'Metro', 
+        'Aleación de Aluminio',
         'B1', 
         '1', 
         '2000',

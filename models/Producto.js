@@ -54,9 +54,9 @@ class ProductoModel {
       const query = `
         INSERT INTO productos (
           id_generado, tipo, familia, clase, modelo, marca, 
-          presentacion, color, capacidad, unidad_venta, 
+          presentacion, color, capacidad, unidad_venta, tipo_material,
           rack, nivel, codigo_numerico, imagen, stock_actual
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       
       const params = [
@@ -70,6 +70,7 @@ class ProductoModel {
         producto.color,
         producto.capacidad,
         producto.unidad_venta,
+        producto.tipo_material || null,
         producto.rack,
         producto.nivel,
         codigoNumerico,
@@ -97,7 +98,7 @@ class ProductoModel {
         UPDATE productos 
         SET tipo = ?, familia = ?, clase = ?, modelo = ?, marca = ?,
             presentacion = ?, color = ?, capacidad = ?, unidad_venta = ?,
-            rack = ?, nivel = ?, imagen = ?, stock_actual = ?
+            tipo_material = ?, rack = ?, nivel = ?, imagen = ?, stock_actual = ?
         WHERE id = ?
       `;
       
@@ -111,6 +112,7 @@ class ProductoModel {
         producto.color,
         producto.capacidad,
         producto.unidad_venta,
+        producto.tipo_material,
         producto.rack,
         producto.nivel,
         producto.imagen,
